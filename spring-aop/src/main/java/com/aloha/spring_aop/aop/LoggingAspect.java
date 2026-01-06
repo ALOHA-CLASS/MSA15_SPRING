@@ -7,12 +7,16 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
+
+import com.aloha.spring_aop.dto.Board;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +30,7 @@ public class LoggingAspect {
   // ⭐ Advice
   // ⚡ Point Cut  : execution( 접근제한자 반환타입 패키지.클래스.메서드(파라미터) )
   // ⚡ Join Point : @Before, @After, @Around 등
-  // @Before("execution(* com.aloha.spring_aop.service.BoardService*.*(..))")
+  @Before("execution(* com.aloha.spring_aop.service.BoardService*.*(..))")
   public void before(JoinPoint jp) {
     // jp.getSignature() : 타겟 메소드 시그니처 정보(반환타입, 패키지.클래스.메소드) 반환
     // jp.getArgs()      : 타겟 메소드의 매개변수를 반환
@@ -41,7 +45,7 @@ public class LoggingAspect {
   }
 
 
-  // @After("execution(* com.aloha.spring_aop.service.BoardService*.*(..))")
+  @After("execution(* com.aloha.spring_aop.service.BoardService*.*(..))")
   public void after(JoinPoint jp) {
     // jp.getSignature() : 타겟 메소드 시그니처 정보(반환타입, 패키지.클래스.메소드) 반환
     // jp.getArgs()      : 타겟 메소드의 매개변수를 반환
@@ -89,6 +93,50 @@ public class LoggingAspect {
 		// after(jp);                    // @After 어드바이스 직접 호출
 		log.info("==================================================");
 		return result;
+	}
+
+  // pointcut    : 포인트컷 표현식
+  // returning   : 타겟 메소드의 반환값을 저장할 매개변수명 지정
+  @AfterReturning(
+    pointcut = "execution(* com.aloha.spring_aop.service.BoardService*.*(..))",
+    returning = "result"
+  )
+  public void AfterReturning(JoinPoint jp, Object result) {
+    log.info("==================================================");
+    log.info("[@AfterReturning] #########################################");
+    log.info("target : {}", jp.getTarget());
+    log.info("signature : {}", jp.getSignature());
+    log.info("args : {}", Arrays.toString(jp.getArgs()));
+    // 파라미터 출력
+    printParam(jp);
+
+    // 반환값 출력
+    if( result != null ) {
+      log.info("반환값 : {}", result);
+    }
+    if( result  instanceof Board ) {
+      result = (Board) result;
+      log.info("반환값 : {}", result);
+    }
+    log.info("==================================================");
+  }
+
+  /**
+   * 예외 발생 후 동작
+   * @param jp
+   * @param exception
+   */
+  @AfterThrowing(
+    pointcut = "execution(* com.aloha.spring_aop.service.BoardService*.*(..))",
+    throwing = "exception"
+  )
+	public void AfterThrowing(JoinPoint jp, Exception exception) {
+		log.info("==================================================");
+		log.info("[@AfterThrowing] ########################################");
+		log.info("target : " + jp.getTarget().toString());
+		log.info("signature : " + jp.getSignature());
+		log.info( exception.toString() );
+		log.info("==================================================");
 	}
 
 

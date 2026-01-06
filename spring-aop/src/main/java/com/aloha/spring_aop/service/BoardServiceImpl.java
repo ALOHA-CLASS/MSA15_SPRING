@@ -30,6 +30,7 @@ public class BoardServiceImpl implements BoardService {
   public Board select(Long no) throws Exception {
     Board board = boardDAO.select(no);
     log.info("게시글을 조회합니다...");
+    int test = 10 / 0;
     return board;
   }
 
