@@ -1,18 +1,31 @@
 package com.aloha.spring_mvc.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.aloha.spring_mvc.dto.Board;
+import com.aloha.spring_mvc.dto.Person;
+import com.aloha.spring_mvc.dto.PersonDTO;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -165,4 +178,265 @@ public class RequestController {
     map.put("key2", "value2");
     return map;
   }
+
+  // ============ ⚡ 요청 처리 ===========
+  @ResponseBody
+  @GetMapping("/header")
+  public String header(@RequestHeader("Accept") String accept
+                      ,@RequestHeader("User-Agent") String userAgent
+                      ,HttpServletRequest request
+  ) {
+    // @RequestHeader 를 통한 헤더 정보 가져오기
+    log.info("[GET] - /request/header");
+    log.info("@RequestHeader 를 통한 헤더 정보 가져오기");
+    log.info("Accept - {}", accept);
+    log.info("User-Agent - {}", userAgent);
+    
+    // request 객체로부터 헤더 가져오기
+    String requestAccept = request.getHeader("Accept");
+    String requestUserAgent = request.getHeader("User-Agent");
+    log.info("request 객체로부터 헤더 가져오기");
+    log.info("Accept - {}", requestAccept);
+    log.info("User-Agent - {}", requestUserAgent);
+    return "SUCCESS";
+  }
+
+  /**
+	 * 요청 본문 가져오기
+	 * @param board
+	 * @return
+	 * * @RequestBody
+	 *   : HTTP 요청 메시지의 본문(body) 내용을 객체로 변환하는 어노테이션
+	 *     주로, 클라이언트에서 json 형식으로 보낸 데이터를 객체로 변환하기 위해 사용한다.
+	 *     * 생략가능 (주로 생략하고 쓴다.)
+	 *     
+	 *   415 에러 - 지원되지 않는 미디어 타입
+	 *   (Unsupported Media Type)
+	 *   : 클라이언트가 보낸 컨텐츠 타입의 요청을 서버가 처리할 수 없을 때 발생하는 에러
+	 *   [클라이언트] ( application/x-www-form-urlencoded )
+	 *       ↓
+	 *   [ 서  버 ]  ( application/json )
+	 *   * @RequestBody 를 쓰면, 본문의 컨텐츠 타입을 application/json 을 기본으로 지정
+	 *   
+	 *   * 비동기 또는 thunder client 로 테스트 가능
+	 *   Content-Type : application/json
+	 *   body {  "title" : "제목",  "writer" : "작성자",  "content" : "내용" }
+	 */
+	@ResponseBody
+	// @RequestMapping(value = "/body", method = RequestMethod.POST)
+  @PostMapping("/body")
+	public String requestBody(@RequestBody Board board) {
+		log.info("[POST] - /request/body");
+		log.info(board.toString());
+		
+		return "SUCCESS";
+	}
+  
+
+  /**
+   * ✅ 체크박스 데이터 가져오기
+   * * 체크박스 다중 데이터는 배열로 전달 받을 수 있다.
+   * * 같은 이름의 요청파라미터(name)들은 배열 또는 리스트로 전달 받을 수 있다.
+   * @param hobbies
+   * @return
+   */
+  @ResponseBody
+  @PostMapping("/check")
+  public String requestCheck(@RequestParam("hobby") String[] hobbies) {
+    log.info("[POST] - /request/check");
+    for (String hobby : hobbies) {
+      log.info("hobby : {}", hobby);
+    }
+    return "SUCCESS";
+  }
+
+  @ResponseBody
+  @PostMapping("/check/person")
+  public String requestCheck(Person person) {
+    log.info("[POST] - /request/check/person");
+    List<String> hobbies = person.getHobby();
+    for (String hobby : hobbies) {
+      log.info("hobby : {}", hobby);
+    }
+    log.info("[person]");
+    log.info(person.toString());
+    return "SUCCESS";
+  }
+
+  @ResponseBody
+  @PostMapping("/check/personDTO")
+  public String requestCheckPersonDTO(PersonDTO personDTO) {
+    log.info("[POST] - /request/check/personDTO");
+
+    log.info("::::: personDTO :::::");
+    log.info(personDTO.toString());
+
+    List<String> hobbies = personDTO.getPerson().getHobby();
+    for (String hobby : hobbies) {
+      log.info("hobby : {}", hobby);
+    }
+    return "SUCCESS";
+  }
+  
+
+  /**
+   * Map 컬렉션으로 여러 요청 파라미터 가져오기
+   * 요청 경로 : /request/map?name=김조은&age=20
+   * @param map
+   * @return
+   */
+  @ResponseBody
+  @GetMapping("/map")
+  public String requestMap(@RequestParam Map<String, String> map) {
+    String name = map.get("name");
+    String age = map.get("age");
+    log.info("name : {}", name);
+    log.info("age : {}", age);
+    return "SUCCESS";
+  }
+  
+  @Value("${upload.path}")
+  private String uploadPath;
+
+  /**
+   * 파일 업로드
+   * @return
+   * @throws IOException 
+   */
+  @ResponseBody
+  @PostMapping("/file")
+  public String fileUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    log.info("/request/file");
+    log.info("uploadPath : {}", uploadPath);
+
+    if( file == null ) return "FAIL";
+
+    log.info("원본파일명 : {}", file.getOriginalFilename());
+    log.info("용량(Byte) : {}", file.getSize());
+    log.info("컨텐츠타입 {}", file.getContentType());
+
+    // 파일 데이터
+    byte[] fileData = file.getBytes();
+
+    // 파일 업로드
+    String fileName = file.getOriginalFilename();
+    File uploadFile = new File(uploadPath, fileName);
+    FileCopyUtils.copy(fileData, uploadFile);   // 파일복사(업로드)⭐
+    // FileCopyUtils.copy(파일데이터, 파일객체);
+    // : 내부적으로는 InputStream, OutputStream 을 이용하여 입력받은 파일을 출력한다.
+
+    return "SUCCESS - 업로드 경로 : " + uploadPath;
+  }
+
+
+  /**
+   * 다중 파일 업로드
+   * @return
+   * @throws IOException 
+   */
+  @ResponseBody
+  @PostMapping("/file/multi")
+  public String fileUpload(@RequestParam("file") MultipartFile[] fileList) throws IOException {
+    log.info("/request/file/multi");
+    log.info("uploadPath : {}", uploadPath);
+
+    if( fileList == null ) return "FAIL";
+
+    if( fileList.length > 0 ) {
+      for (MultipartFile file : fileList) {
+        log.info("원본파일명 : {}", file.getOriginalFilename());
+        log.info("용량(Byte) : {}", file.getSize());
+        log.info("컨텐츠타입 {}", file.getContentType());
+    
+        // 파일 데이터
+        byte[] fileData = file.getBytes();
+    
+        // 파일 업로드
+        String fileName = file.getOriginalFilename();
+        File uploadFile = new File(uploadPath, fileName);
+        FileCopyUtils.copy(fileData, uploadFile);   // 파일복사(업로드)⭐
+        // FileCopyUtils.copy(파일데이터, 파일객체);
+        // : 내부적으로는 InputStream, OutputStream 을 이용하여 입력받은 파일을 출력한다.
+      }
+    }
+    return "SUCCESS - 업로드 경로 : " + uploadPath;
+  }
+  
+
+  /**
+   * 데이터 + 파일 업로드
+   * @return
+   * @throws IOException 
+   */
+  @ResponseBody
+  @PostMapping("/file/board")
+  public String fileUpload(Board board) throws IOException {
+    log.info("/request/file/board");
+    log.info("uploadPath : {}", uploadPath);
+    log.info("board : {}", board);
+
+    List<MultipartFile> fileList = board.getFileList();
+    if( fileList == null ) return "FAIL";
+
+    if( !fileList.isEmpty() ) {
+      for (MultipartFile file : fileList) {
+        log.info("원본파일명 : {}", file.getOriginalFilename());
+        log.info("용량(Byte) : {}", file.getSize());
+        log.info("컨텐츠타입 {}", file.getContentType());
+    
+        // 파일 데이터
+        byte[] fileData = file.getBytes();
+    
+        // 파일 업로드
+        String fileName = file.getOriginalFilename();
+        File uploadFile = new File(uploadPath, fileName);
+        FileCopyUtils.copy(fileData, uploadFile);   // 파일복사(업로드)⭐
+        // FileCopyUtils.copy(파일데이터, 파일객체);
+        // : 내부적으로는 InputStream, OutputStream 을 이용하여 입력받은 파일을 출력한다.
+      }
+    }
+    return "SUCCESS - 업로드 경로 : " + uploadPath;
+  }
+
+  // ajax 비동기 파일 업로드 화면
+  @GetMapping("/ajax")
+  public String ajx() {
+      return "request/ajax";
+  }
+
+  /**
+   * 데이터 + 파일 업로드 (ajax)
+   * @return
+   * @throws IOException 
+   */
+  @ResponseBody
+  @PostMapping("/file/ajax")
+  public String fileUploadAjax(Board board) throws IOException {
+    log.info("/request/file/ajax");
+    log.info("uploadPath : {}", uploadPath);
+    log.info("board : {}", board);
+
+    List<MultipartFile> fileList = board.getFileList();
+    if( fileList == null ) return "FAIL";
+
+    if( !fileList.isEmpty() ) {
+      for (MultipartFile file : fileList) {
+        log.info("원본파일명 : {}", file.getOriginalFilename());
+        log.info("용량(Byte) : {}", file.getSize());
+        log.info("컨텐츠타입 {}", file.getContentType());
+    
+        // 파일 데이터
+        byte[] fileData = file.getBytes();
+    
+        // 파일 업로드
+        String fileName = file.getOriginalFilename();
+        File uploadFile = new File(uploadPath, fileName);
+        FileCopyUtils.copy(fileData, uploadFile);   // 파일복사(업로드)⭐
+        // FileCopyUtils.copy(파일데이터, 파일객체);
+        // : 내부적으로는 InputStream, OutputStream 을 이용하여 입력받은 파일을 출력한다.
+      }
+    }
+    return "SUCCESS - 업로드 경로 : " + uploadPath;
+  }
+
 }
