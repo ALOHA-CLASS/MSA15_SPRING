@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
@@ -24,6 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.aloha.spring_mvc.dto.Board;
 import com.aloha.spring_mvc.dto.Person;
 import com.aloha.spring_mvc.dto.PersonDTO;
+import com.aloha.spring_mvc.dto.User;
+import com.aloha.spring_mvc.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -438,5 +441,34 @@ public class RequestController {
     }
     return "SUCCESS - 업로드 경로 : " + uploadPath;
   }
+
+  @Autowired 
+  private UserService userService;
+
+  /**
+   * 날짜(date) 형식 요청 파라미터 바인딩하기
+   * @return
+   */
+  @ResponseBody
+  @PostMapping("/user")
+  // 1️⃣
+  // public String requestUser(@RequestParam("birth") String birth) {
+  // 2️⃣
+  // public String requestUser(
+  //   @RequestParam("birth") 
+  //   // @DateTimeFormat(pattern = "yyyy-MM-dd") Date birth
+  //   LocalDate birth   // 자동으로 변환 및 바인딩 됨
+  // ) {
+  // 3️⃣
+  public String requestUser(User user) {
+    log.info("[POST] - /request/user");
+    // log.info("birth : {}", birth);  // 2026-01-08
+    log.info("user : {}", user);
+    
+    boolean result = userService.signup(user);
+    log.info("result : {}", result);
+    return "SUCCESS";
+  }
+  
 
 }
