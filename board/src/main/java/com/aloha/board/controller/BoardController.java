@@ -1,4 +1,4 @@
-package com.aloha.mybatis.controller;
+package com.aloha.board.controller;
 
 import java.util.List;
 
@@ -9,14 +9,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.aloha.mybatis.dto.Board;
-import com.aloha.mybatis.service.BoardService;
+import com.aloha.board.dto.Board;
+import com.aloha.board.service.BoardService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-
-
 
 /**
  * [GET]    - /board/list       : 게시글 목록 화면
