@@ -92,6 +92,7 @@ public class FileServiceImpl implements FileService {
         newFile.setParentTable(parentTable.value());
         newFile.setName(fileName);
         newFile.setPath(path);
+        newFile.setSize(file.getSize());
         newFile.setContentType(file.getContentType());
         newFile.setSortOrder(sortOrder++);
         if( sortOrder == 1 )

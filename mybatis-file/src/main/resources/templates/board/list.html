@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.5.3/css/fileinput.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">    
+</head>
+<body>
+  <div class="container p-5">
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <h1 class="text-center">게시글 목록</h1>
+        <div class="d-flex justify-content-end">
+          <a href="/board/create" class="btn btn-primary">글쓰기</a>
+        </div>
+        <table class="table table-bordered table-striped table-hover table-responsive mt-3 text-center">
+          <colgroup>
+            <col class="col-2">  <!-- 썸네일 -->
+            <col class="col-1">  <!-- 번호 -->
+            <col class="col-3">  <!-- 제목 -->
+            <col class="col-2">  <!-- 작성자 -->
+            <col class="col-2">  <!-- 등록일 -->
+            <col class="col-2">  <!-- 수정일 -->
+          </colgroup>
+          <tr class="table-dark">
+            <th width="150">썸네일</th>
+            <th>번호</th>
+            <th width="300">제목</th>
+            <th>작성자</th>
+            <th>등록일자</th>
+            <th>수정일자</th>
+          </tr>
+          <th:block th:if="${ list == null || list.isEmpty() }">
+            <tr>
+              <td colspan="6">
+                조회된 데이터가 없습니다.
+              </td>
+            </tr>
+          </th:block>
+          <th:block th:each="board : ${list}">
+            <tr class="align-middle">
+              <td>
+                <th:block th:if="${ board.fileList != null && !board.fileList.isEmpty() }">
+                  <img th:src="@{/files/{id}(id=${board.fileList[0].id})}" class="img-fluid" />
+                <th:block th:if="${ board.fileList != null && !board.fileList.isEmpty() }">
+                  <th:block th:each="file : ${board.fileList}">
+                    <img th:if="${file.isMain}" th:src="@{/files/{id}(id=${file.id})}" class="img-fluid" />
+                  </th:block>
+                </th:block>
+                </th:block>
+              </td>
+              <td th:text="${board.no}"></td>
+              <td class="text-start">
+                  <!-- th:???="|문자열+${표현식}|" -->
+                  <a th:href="|/board/detail?no=${board.no}|" 
+                    th:text="${board.title}"></a>
+              </td>
+              <td th:text="${board.writer}"></td>
+              <!-- 
+                  유틸리티객체.메소드()
+                  #dates.format( 날짜객체명, '날짜포맷' ) 
+                  - #dates.format( board.regDate, 'yyyy-MM-dd HH:mm:ss' )
+              -->
+              <td>
+                  <span th:text="${ #dates.format( board.createdAt, 'yyyy-MM-dd HH:mm:ss' ) }"></span>
+              </td>
+              <td>
+                  <span th:text="${ #dates.format( board.updatedAt, 'yyyy-MM-dd HH:mm:ss' ) }"></span>
+              </td>
+            </tr>
+          </th:block>
+        </table>
+      </div>
+    </div>
+  </div>
+    
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.5.3/js/fileinput.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.5.3/themes/fas/theme.min.js"></script>
+  <script src="/js/locales/kr.js"></script>
+    
+</body>
+</html>

@@ -3,16 +3,14 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- namespace="매퍼 인터페이스 경로" -->
-<mapper namespace="com.aloha.board.mapper.FileMapper">
-
+<!-- namespace="매퍼 인터페이스 경로" --> 
+<mapper namespace="com.aloha.mybatis.mapper.FileMapper">
   <select id="list" resultType="Files">
     SELECT *
     FROM file
-    ORDER BY created_at DESC
+    ORDER BY sort_order ASC, created_at DESC
   </select>
 
-  <!-- 파일 조회 -->
   <select id="select" resultType="Files">
     SELECT *
     FROM file
@@ -24,18 +22,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     FROM file
     WHERE id = #{id}
   </select>
-
-  <!-- 파일 등록 -->
+  
   <insert id="insert">
-    INSERT INTO file ( 
-      id, parent_table, parent_no, name, path, size, content_type, sort_order, is_main
-    )
-    VALUES ( 
-      #{id}, #{parentTable}, #{parentNo}, #{name}, #{path}, #{size}, #{contentType}, #{sortOrder}, #{isMain}
-    )
+    INSERT INTO file ( id, parent_table, parent_no, name, path, size, content_type, sort_order, is_main )
+    VALUES ( #{id}, #{parentTable}, #{parentNo}, #{name}, #{path}, #{size}, #{contentType}, #{sortOrder}, #{isMain} )
   </insert>
 
-  <!-- 파일 수정 -->
   <update id="update">
     UPDATE file
     <set>
@@ -66,7 +58,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     WHERE id = #{id}
   </update>
 
-  <!-- 파일 삭제 -->
   <delete id="delete">
     DELETE FROM file
     WHERE no = #{no}
@@ -81,9 +72,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   <select id="listByParent" resultType="Files">
     SELECT *
     FROM file
-    WHERE parent_table = #{parentTable}
-      AND parent_no = #{parentNo}
+    WHERE parent_table = #{parentTable} AND parent_no = #{parentNo}
     ORDER BY sort_order ASC, created_at DESC
   </select>
+
+  <!-- ⭐ 부모 기준 삭제 -->
+  <delete id="deleteByParent">
+    DELETE FROM file
+    WHERE parent_table = #{parentTable} AND parent_no = #{parentNo}
+  </delete>
 
 </mapper>

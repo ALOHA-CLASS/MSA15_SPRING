@@ -29,6 +29,46 @@
       "projectName": "mybatis",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-MybatisApplication<mybatis-file>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.aloha.mybatis.MybatisApplication",
+      "projectName": "mybatis-file",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-BoardApplication<board>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.aloha.board.BoardApplication",
+      "projectName": "board",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-BoardApplication<board-file>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.aloha.board.BoardApplication",
+      "projectName": "board-file",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-AjaxApplication<ajax>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.aloha.ajax.AjaxApplication",
+      "projectName": "ajax",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }
