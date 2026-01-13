@@ -5,15 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>게시판 프로젝트</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.5.3/css/fileinput.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <main>
     <div class="container py-5">
       <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-6">
+        <div class="col-12 col-md-10 col-lg-10">
           <h1 class="text-center">게시글 수정</h1>
-          <form id="form" action="/board/update" method="post" th:object="${board}">
+          <form id="form" action="/board/update" method="post" th:object="${board}" enctype="multipart/form-data">
             <input type="hidden" th:field="*{no}">
             <div class="mb-3">
               <label for="" class="form-label">제목</label>
@@ -33,6 +35,10 @@
               <label for="" class="form-label">내용</label>
               <textarea class="form-control" th:field="*{content}" rows="5"></textarea>
             </div>
+            <div class="mb-3">
+              <label for="" class="form-label">파일목록</label>
+              <input type="file" id="file1" class="file" multiple /> 
+            </div>
             <div class="d-grid gap-2 d-md-flex justify-content-center mt-2">
               <button type="submit" class="btn btn-primary w-100">수정</button>
             </div>
@@ -45,7 +51,12 @@
       </div>
     </div>
   </main>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.5.3/js/fileinput.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.5.3/themes/fas/theme.min.js"></script>
+  <script src="/js/locales/kr.js"></script>
 
   <script>
     // 👩‍💻 모델 객체를 자바스크립트로 가져오는 방법
@@ -66,6 +77,73 @@
         $form.submit()
       }
     }
+  </script>
+
+  <script th:inline="javascript">
+    // 💎 동기식으로 가져온 파일목록 데이터
+    // Java 객체(컬렉션) ➡ JS 객체(배열)
+    let fileList = [[${board.fileList}]]
+
+    // 파일 목록 비동기 요청 및 초기화
+    async function loadFiles() {
+      try {
+        // ⚡ 비동기 요청으로 가져온 파일목록 데이터
+        // const response = await fetch(`/files/board/${no}`);
+        // const data = await response.json();
+
+        const data = fileList
+
+        console.log(data);
+
+        let initialPreview = [];
+        let initialPreviewConfig = [];
+
+        data.forEach(file => {
+          let fileUrl = '/files/' + file.id;
+
+          initialPreview.push(fileUrl);
+
+          initialPreviewConfig.push({
+            caption: file.name,
+            size: file.size,
+            width: "120px",
+            url: '/files/' + file.id,
+            key: file.id
+          });
+        });
+
+        // 🔴 중요: 기존 fileinput 제거
+        if ($("#file1").data('fileinput')) {
+          $("#file1").fileinput('destroy');
+        }
+
+        // 파일 업로드 초기화
+        $("#file1").fileinput({
+          language: "kr",                               // 언어 설정          
+          initialPreview: initialPreview,               // 미리보기할 파일의 URL 배열
+          initialPreviewAsData: true,                   // ★ URL을 이미지/파일로 인식
+          initialPreviewConfig: initialPreviewConfig,   // 미리보기 설정
+          // initialPreviewShowDelete: false,              // 파일별 삭제버튼 숨김
+          showUpload: false,                            // 업로드 버튼 숨김
+          showRemove: false,                            // 전체 삭제버튼 숨김
+          showBrowse: false,                            // 파일 찾아보기 버튼 숨김
+          showCaption: false,                           // 파일 캡션 숨김
+          showClose: false,                              // 미리보기 닫기 버튼 숨김
+          ajaxDeleteSettings: {
+            type: "DELETE"  
+          }
+        });
+
+      } catch (error) {
+        console.error("파일 로딩 실패", error);
+      }
+    }
+
+    // DOM 준비 후 실행
+    $(document).ready(function () {
+      loadFiles();
+    });
+    
   </script>
 </body>
 </html>

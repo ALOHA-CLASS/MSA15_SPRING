@@ -70,6 +70,13 @@ public class FileServiceImpl implements FileService {
   
   @Override
   public boolean deleteById(String id) throws Exception {
+    Files file = fileMapper.selectById(id);
+    // 파일 삭제
+    File realFile = new File(file.getPath());
+    if( realFile.exists() ) {
+      realFile.delete();
+    }
+    // DB 삭제
     int result = fileMapper.deleteById(id);
     return result > 0;
   }
@@ -101,6 +108,12 @@ public class FileServiceImpl implements FileService {
       }
     }
     return sortOrder;
+  }
+
+  @Override
+  public List<Files> listByParent(Files files) throws Exception {
+    List<Files> fileList = fileMapper.listByParent(files);
+    return fileList;
   }
   
 }

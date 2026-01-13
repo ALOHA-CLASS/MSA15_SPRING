@@ -21,6 +21,33 @@
   </div>
 
   <hr>
+  <h3>게시글 등록/수정/삭제</h3>
+  <form action="/api/boards" method="post">
+    <table>
+      <tr>
+        <td><label for="title">제목</label></td>
+        <td><input type="text" name="title" id="input-title"></td>
+      </tr>
+      <tr>
+        <td><label for="writer">작성자</label></td>
+        <td><input type="text" name="writer" id="input-writer"></td>
+      </tr>
+      <tr>
+        <td><label for="content">내용</label></td>
+        <td>
+          <textarea name="content" id="input-content" cols="50" rows="10"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td><label for="updateNo">글번호</label></td>
+        <td><input type="text" name="no" id="input-no" placeholder="수정/삭제 번호"></td>
+      </tr>
+    </table>
+    <button type="button" onclick="insert()">등록하기</button>
+    <button type="button" onclick="update()">수정하기</button>
+    <button type="button" onclick="remove()">삭제하기</button>
+  </form>
+  <hr>
 
   <h3>게시글 목록</h3>
   <table id="board-list" border="1">
@@ -31,9 +58,11 @@
       <th width="200">등록일자</th>
       <th width="200">수정일자</th>
     </tr>
-    <tr id="board-data">
-      <td colspan="5" align="center">조회된 데이터가 없습니다.</td>
-    </tr>
+    <tbody id="board-body">
+      <tr id="board-data">
+        <td colspan="5" align="center">조회된 데이터가 없습니다.</td>
+      </tr>
+    </tbody>
   </table>
 
   <div style="height: 1000px;"></div>
@@ -63,6 +92,7 @@
         // 요청 완료 및 응답 성공
         if( request.status == 200 ) {
           // request.responseText = 응답데이터
+          // { "no":1, "title":"...", "writer":"...", "content":"..." }
           response = request.responseText
 
           if( response == '' ) {
@@ -130,6 +160,10 @@
         // 요청 완료 및 응답 성공
         if( request.status == 200 ) {
           // request.responseText = 응답데이터
+          // [ 
+          //   { "no":1, "title":"...", "writer":"...", ... }, 
+          //   { "no":2, "title":"...", "writer":"...", ... }, ... 
+          // ]
           response = request.responseText
 
           // JSON.parse()  : JSON 문자열 -> JS 객체 변환
@@ -142,27 +176,157 @@
           else {
               let $boardData = document.getElementById('board-data')
               let $boardList = document.getElementById('board-list')
+              let $boardBody = document.getElementById('board-body')
 
               // 데이터 초기화
               // $boardData.remove()
-              $boardData.innerHTML = ''
+              // $boardData.innerHTML = ''
+              $boardBody.innerHTML = ''
 
+              let tr = ''
               for( const board of boardList ) {
-                  let tr = `<tr>
-                              <td>${board.no}</td>
-                              <td>${board.title}</td>
-                              <td>${board.writer}</td>
-                              <td>${board.createdAt}</td>
-                              <td>${board.updatedAt}</td>
-                            </tr>`
-                  $boardList.innerHTML += tr
+                  tr += `<tr>
+                            <td>${board.no}</td>
+                            <td>${board.title}</td>
+                            <td>${board.writer}</td>
+                            <td>${board.createdAt}</td>
+                            <td>${board.updatedAt}</td>
+                          </tr>`
               }
+              
+              $boardBody.innerHTML = tr
           }
         }
       }
     }
     // 게시글 목록 함수 호출
     getList()
+
+    // 게시글 등록
+    function insert() {
+      request = new XMLHttpRequest()
+
+      // 입력 정보
+      let title = document.getElementById("input-title").value
+      let writer = document.getElementById("input-writer").value
+      let content = document.getElementById("input-content").value
+
+      // 객체
+      let data = {
+        'title' : title,
+        'writer' : writer,
+        'content' : content,
+      }
+
+      // 요청 설정
+      let url = `http://127.0.0.1:8080/api/boards`
+      request.open('POST', url, true)
+
+      // 헤더 설정
+      request.setRequestHeader("Content-Type", "application/json")
+
+      // 응답 확인
+      request.onload = function() {
+        let response = ''
+        if( request.status == 201 ) {
+          response = request.responseText
+          alert(response)
+          // 등록 후 목록 갱신
+          getList()
+        }
+        if( request.status == 400 ) {
+          alert("클라이언트의 잘못된 요청")
+        }
+        if( request.status == 500 ) {
+          alert("서버 내부 에러")
+        }
+      }
+
+      // 요청 전송
+      // JSON.stringify() : JS 객체 -> JSON 문자열 변환
+      request.send( JSON.stringify(data) )
+
+    }
+
+    // 게시글 수정
+    function update() {
+      request = new XMLHttpRequest()
+
+      // 입력 정보
+      let no = document.getElementById("input-no").value
+      let title = document.getElementById("input-title").value
+      let writer = document.getElementById("input-writer").value
+      let content = document.getElementById("input-content").value
+
+      // 객체
+      let data = {
+        'no'      : no,
+        'title'   : title,
+        'writer'  : writer,
+        'content' : content
+      }
+
+      // 요청 설정
+      let url = 'http://127.0.0.1:8080/api/boards'
+      request.open('PUT', url, true)
+
+      // 헤더 설정
+      request.setRequestHeader("Content-Type", "application/json")
+
+      // 응답 확인
+      request.onload = function() {
+        let response = ''
+        // 요청 성공
+        if( request.status == 200 ) {
+          response = request.responseText
+          alert(response)
+          getList()
+        }
+        // 요청 실패
+        if( request.status == 400 ) {
+          alert("클라이언트의 잘못된 요청")
+        }
+        if( request.status == 500 ) {
+          alert("서버 내부 에러")
+        }
+      }
+      // 요청 전송
+      // JSON.stringfy(data) : 객체 --> JSON 문자열로 변환
+      request.send( JSON.stringify(data) )
+    }
+
+
+    // 게시글 삭제
+    function remove() {
+      request = new XMLHttpRequest()
+      
+      // 입력 정보
+      let no = document.getElementById('input-no').value
+
+      // ✅ DELETE 요청 방식은 요청 데이터를 URL 에 포함하여 전송한다.
+      // 요청 설정
+      let url = `http://127.0.0.1:8080/api/boards/${no}`
+      request.open('DELETE', url, true)
+
+      // 응답 확인
+      request.onload = function() {
+        let response = ''
+        // 요청 성공
+        if( request.status == 200 ) {
+          response = request.responseText
+          alert(response)
+          getList()
+        }
+        if( request.status == 400 ) {
+          alert('클라이언트의 잘못된 요청')
+        }
+        if( request.status == 500 ) {
+          alert('서버 내부 에러')
+        }
+      }
+      // 요청 전송
+      request.send()
+    }
   </script>
 </body>
 </html>

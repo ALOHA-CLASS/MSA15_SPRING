@@ -47,6 +47,9 @@ public class BoardController {
   public ResponseEntity<?> getOne(@PathVariable("no") Integer no) {
       try {
           Board board = boardService.select(no);
+          if( board == null ) {
+            return new ResponseEntity<>("FAIL", HttpStatus.NOT_FOUND);  
+          }
           return new ResponseEntity<>(board, HttpStatus.OK);
       } catch (Exception e) {
           return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
