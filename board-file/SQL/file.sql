@@ -14,3 +14,10 @@ CREATE TABLE `file` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+
+SELECT IFNULL( MAX(sort_order) + 1, 0) AS sort_order
+    FROM file
+    WHERE parent_table = :parentTable
+      AND parent_no = :parentNo
+;

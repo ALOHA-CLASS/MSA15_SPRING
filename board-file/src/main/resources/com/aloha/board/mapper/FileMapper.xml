@@ -93,4 +93,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       AND parent_no = #{parentNo}
   </delete>
 
+  <!-- ⭐ 부모 기준 최대 정렬 순서 -->
+  <select id="nextSortOrderByParent" resultType="int">
+    SELECT IFNULL( MAX(sort_order) + 1, 0) AS sort_order
+    FROM file
+    WHERE parent_table = #{parentTable}
+      AND parent_no = #{parentNo}
+  </select>
+
 </mapper>

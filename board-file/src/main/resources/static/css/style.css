@@ -37,3 +37,8 @@ body {
 .fs-text { font-size: var(--fs-text); }
 .fs-middle { font-size: var(--fs-middle); }
 .fs-small { font-size: var(--fs-small); }
+
+.file-preview-frame * {
+  /* 마우스로 드래그시 선택되지 않도록 방지 */
+  user-select: none;
+}

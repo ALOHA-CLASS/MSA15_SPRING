@@ -26,4 +26,6 @@ public interface FileMapper {
   List<Files> listByParent(Files files) throws Exception;
   // ⭐ 부모 기준 파일 삭제
   int deleteByParent(Files files) throws Exception;
+  // ⭐ 부모 기준 다음 정렬 순서
+  int nextSortOrderByParent(Files files) throws Exception;
 }

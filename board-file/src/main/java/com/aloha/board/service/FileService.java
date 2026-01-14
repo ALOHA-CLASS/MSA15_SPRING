@@ -1,6 +1,7 @@
 package com.aloha.board.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,4 +29,8 @@ public interface FileService {
   List<Files> listByParent(Files files) throws Exception;
   // ⭐ 부모 기준 파일 삭제
   int deleteByParent(Files files) throws Exception;
+
+  // ⚡ 파일 순서 변경
+  boolean updateSortOrder(List<Map<String, Object>> sortOrderList) throws Exception;
+  boolean updateFileSortOrder(List<Files> fileList) throws Exception;
 }

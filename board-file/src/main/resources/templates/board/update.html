@@ -58,10 +58,10 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- 파일 아이템 순서 변경 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.5.0/js/plugins/sortable.min.js" type="text/javascript"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.5.3/js/fileinput.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.5.3/themes/fas/theme.min.js"></script>
-  <!-- 파일 아이템 순서변경 라이브러리 -->
-  <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.5.0/js/plugins/sortable.min.js" type="text/javascript"></script>
   <script src="/js/locales/kr.js"></script>
 
   <script>
@@ -138,8 +138,28 @@
           ajaxDeleteSettings: {
             type: "DELETE"  
           }
-        }).on('filesorted', function(event, params) {
+        })
+        // 파일 순서 변경 이벤트
+        .on('filesorted', function(event, params) {
+          // params.stack     : 정렬된 파일 배열
+          // params.newIndex  : 이동 후 인덱스
+          // params.oldIndex   : 이동 전 인덱스
+          console.log('파일 순서 변경 : ', params)
+          console.log('New index : ', params.newIndex);
+          console.log('Old index : ', params.oldIndex);
+          console.log('정렬된 배열 : ', params.stack);
 
+          // 순서 변경 비동기 요청
+          fetch('/files/sort', {
+            method  : 'PUT',
+            headers : {'Content-Type' : 'application/json'},
+            body    : JSON.stringify(params.stack)
+          }).then(response => {
+            console.log(response);
+          }).catch(error => {
+            console.error('Error : ', error)
+          })
+          
         })
         ;
 

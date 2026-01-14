@@ -21,6 +21,9 @@ import com.aloha.board.service.FileService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -97,4 +100,23 @@ public class FileController {
     return ResponseEntity.ok(response);
   }
   
+
+  /**
+   * 파일 순서 변경
+   */
+  @PutMapping("/sort")
+  public ResponseEntity<Map<?,?>> fielsort(
+    @RequestBody List<Map<String, Object>> stack
+  ) throws Exception
+  {
+    log.info("statck : {}", stack);
+    boolean result = fileService.updateSortOrder(stack);
+    log.info("result : {}", result);
+    if(!result) {
+      throw new Exception("파일 순서 변경에 실패했습니다.");
+    }
+    Map<String, Object> response = new HashMap<>();
+    response.put("SUCCESS", true);
+    return ResponseEntity.ok(response);
+  }
 }

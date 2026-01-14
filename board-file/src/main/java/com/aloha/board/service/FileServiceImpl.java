@@ -2,6 +2,7 @@ package com.aloha.board.service;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -78,14 +79,27 @@ public class FileServiceImpl implements FileService {
     }
     // DB 삭제
     int result = fileMapper.deleteById(id);
+
+    // 파일 순서 재배열
+    List<Files> fileList = fileMapper.listByParent(file);
+    updateFileSortOrder(fileList);
+
     return result > 0;
   }
 
   @Override
   public int upload(List<MultipartFile> files, ParentTable parentTable, Integer parentNo) throws Exception {
-    int sortOrder = 0;
+    Files fileSort = new Files();
+    fileSort.setParentTable(parentTable.value());
+    fileSort.setParentNo(parentNo);
+    // 다음 정렬 순서 - sortOrder : 0 또는 기존 파일 마지막순서+1
+    int sortOrder = fileMapper.nextSortOrderByParent(fileSort);
     if( files != null ) {
       for (MultipartFile file : files) {
+        // ⚡ 빈 파일 체크
+        if( file.isEmpty() ) {
+          continue;
+        }
         String fileName = file.getOriginalFilename(); // 원본파일명
         String path = uploadPath + UUID.randomUUID().toString() + "_" + fileName;
         // 파일 저장
@@ -131,6 +145,48 @@ public class FileServiceImpl implements FileService {
     // DB 파일 삭제
     int result = fileMapper.deleteByParent(files);
     return result;
+  }
+
+  @Override
+  public boolean updateSortOrder(List<Map<String, Object>> sortOrderList) throws Exception {
+    int index = 0;
+    int result = 0;
+    for (Map<String,Object> map : sortOrderList) {
+      String id = (String) map.get("key");
+
+      Files file = new Files();
+      file.setId(id);
+      // index 0 이면 메인파일
+      if( index == 0 ) {
+        file.setIsMain(true);
+      } else {
+        file.setIsMain(false);
+      }
+      file.setSortOrder(index++);
+      result += fileMapper.updateById(file);
+    }
+    return result == sortOrderList.size();
+  }
+
+  @Override
+  public boolean updateFileSortOrder(List<Files> fileList) throws Exception {
+    int index = 0;
+    int result = 0;
+    for (Files file : fileList) {
+      String id = file.getId();
+
+      Files updateFile = new Files();
+      updateFile.setId(id);
+      // index 0 이면 메인파일
+      if( index == 0 ) {
+        updateFile.setIsMain(true);
+      } else {
+        updateFile.setIsMain(false);
+      }
+      updateFile.setSortOrder(index++);
+      result += fileMapper.updateById(updateFile);
+    }
+    return result == fileList.size();
   }
   
 }
