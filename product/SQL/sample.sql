@@ -1,8 +1,0 @@
-DROP TABLE IF EXISTS `sample`;
-CREATE TABLE `sample` (
-  `no` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'PK',
-  `id` varchar(64) NOT NULL UNIQUE COMMENT 'UK',
-  `name` varchar(100) NOT NULL COMMENT '이름',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일자',
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일자',
-) COMMENT '샘플 테이블';

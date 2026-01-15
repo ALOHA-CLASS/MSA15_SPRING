@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace="매퍼 인터페이스 경로" -->
+<mapper namespace="com.aloha.product_rest.mapper.ProductMapper">
+
+  <select id="list" resultType="Product">
+      SELECT *
+      FROM product
+  </select>
+
+  <select id="select" resultType="Product">
+      SELECT *
+      FROM product
+      WHERE no = #{no}
+  </select>
+
+  <select id="selectById" resultType="Product">
+      SELECT *
+      FROM product
+      WHERE id = #{id}
+  </select>
+
+  <insert id="insert">
+      INSERT INTO product (id, name, price, stock)
+      VALUES (#{id}, #{name}, #{price}, #{stock})
+  </insert>
+
+  <update id="update">
+      UPDATE product
+      <set>
+          <if test="name != null">name = #{name},</if>
+          <if test="price != null">price = #{price},</if>
+          <if test="stock != null">stock = #{stock},</if>
+      </set>
+      WHERE no = #{no}
+  </update>
+
+  <update id="updateById">
+      UPDATE product
+      <set>
+          <if test="name != null">name = #{name},</if>
+          <if test="price != null">price = #{price},</if>
+          <if test="stock != null">stock = #{stock},</if>
+      </set>
+      WHERE id = #{id}
+  </update>
+
+  <delete id="delete">
+      DELETE FROM product
+      WHERE no = #{no}
+  </delete>
+
+  <delete id="deleteById">
+      DELETE FROM product
+      WHERE id = #{id}
+  </delete>
+
+</mapper>
