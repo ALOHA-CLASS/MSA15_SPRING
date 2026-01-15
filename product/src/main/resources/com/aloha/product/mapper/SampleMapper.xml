@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aloha.prodcut.mapper.SampleMapper">
+
+    <select id="list" resultType="Sample">
+        SELECT *
+        FROM sample
+    </select>
+
+    <select id="select" resultType="Sample">
+        SELECT *
+        FROM sample
+        WHERE no = #{no}
+    </select>
+
+    <select id="selectById" resultType="Sample">
+        SELECT *
+        FROM sample
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO sample (id, name)
+        VALUES (#{id}, #{name})
+    </insert>
+
+    <update id="update">
+        UPDATE sample
+        SET name = #{name}
+        WHERE no = #{no}
+    </update>
+
+    <update id="updateById">
+        UPDATE sample
+        SET name = #{name}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM sample
+        WHERE no = #{no}
+    </delete>
+
+    <delete id="deleteById">
+        DELETE FROM sample
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
